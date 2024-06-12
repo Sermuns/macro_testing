@@ -5,10 +5,10 @@ on:
     branches:
       - main
     paths:
-      - '**.rs'
-      - 'Cargo.toml'
-      - 'Cargo.lock'
-      - '.github/workflows/deploy.yml'
+      - "**.rs"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - ".github/workflows/deploy.yml"
 
 permissions:
   contents: write
