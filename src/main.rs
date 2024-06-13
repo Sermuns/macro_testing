@@ -2,14 +2,15 @@ use macroquad::prelude::*;
 use rustfft::num_complex::Complex;
 
 const DIRECTIONAL_ACCELERATION: f32 = 0.5;
-const FORWARD_ACCELERATION: f32 = 0.001;
-const DAMPING: f32 = 0.95;
+const FORWARD_ACCELERATION: f32 = 0.002;
+const CURSOR_ACCELERATION: f32 = 0.1;
+const DAMPING: f32 = 0.98;
 const GRAVITY: f32 = 0.0;
 const FONT_SIZE: f32 = 25.0;
 const BALL_RADIUS: f32 = 15.0;
 const LINE_THICKNESS: f32 = 5.0;
 
-const FFT_ELEMENTS: usize = 100;
+const FFT_SIZE: usize = 500;
 
 const TITLE: &str = "When the when the when the whn the";
 
@@ -34,8 +35,8 @@ async fn main() {
     let mut paused: bool = false;
     let mut show_fft: bool = false;
 
-    let mut previous_y_positions = vec![0.0; FFT_ELEMENTS];
-    let mut fft_data = vec![0.0; FFT_ELEMENTS];
+    let mut previous_y_positions = vec![0.0; FFT_SIZE];
+    let mut fft_data = vec![0.0; FFT_SIZE];
 
     loop {
         handle_states(&mut paused, &mut show_fft);
@@ -46,19 +47,22 @@ async fn main() {
             handle_movement(&mut ball_x, &mut ball_y, &mut speed_x, &mut speed_y, &speed);
             handle_damping(&mut speed_x, &mut speed_y, speed);
             handle_acceleration(&mut speed_x, &mut speed_y);
+            handle_cursor_input(&mut ball_x, &mut ball_y, &mut speed_x, &mut speed_y);
 
             // calculate FFT
             let y = ball_y;
             previous_y_positions.remove(0);
             previous_y_positions.push(y);
-            let fft = rustfft::FftPlanner::new().plan_fft_forward(FFT_ELEMENTS);
+            let fft = rustfft::FftPlanner::new().plan_fft_forward(FFT_SIZE);
             let mut input: Vec<Complex<f32>> = previous_y_positions
                 .iter()
                 .map(|&y| Complex::new(y, 0.0))
                 .collect();
-            let mut output = vec![Complex::new(0.0, 0.0); FFT_ELEMENTS];
+            let mut output = vec![Complex::new(0.0, 0.0); FFT_SIZE];
             fft.process_outofplace_with_scratch(&mut input, &mut output, &mut []);
             fft_data = output.iter().map(|c| c.norm()).collect();
+            // get the first half
+            fft_data.truncate(fft_data.len() / 2);
         }
 
         draw_ball_background(speed, top_speed);
@@ -72,12 +76,30 @@ async fn main() {
     }
 }
 
+/// Accelerate the ball towards the cursor
+fn handle_cursor_input(ball_x: &mut f32, ball_y: &mut f32, speed_x: &mut f32, speed_y: &mut f32) {
+    if is_mouse_button_down(MouseButton::Left) {
+        let cursor_x = mouse_position().0;
+        let cursor_y = mouse_position().1;
+        let dx = cursor_x - *ball_x;
+        let dy = cursor_y - *ball_y;
+        let angle = dy.atan2(dx);
+        *speed_x += angle.cos() * CURSOR_ACCELERATION;
+        *speed_y += angle.sin() * CURSOR_ACCELERATION;
+    }
+}
+
 /// Display the FFT data in a graph
 fn draw_fourier(fft_data: &[f32]) {
-
     // Draw semi-transparent background
     let opacity = 0.6;
-    draw_rectangle(0.0, 0.0, screen_width(), screen_height(), Color::new(0.0, 0.0, 0.0, opacity));
+    draw_rectangle(
+        0.0,
+        0.0,
+        screen_width(),
+        screen_height(),
+        Color::new(0.0, 0.0, 0.0, opacity),
+    );
 
     // Find the maximum value in the FFT data
     let max_value = fft_data.iter().cloned().fold(f32::MIN, f32::max);
@@ -89,7 +111,7 @@ fn draw_fourier(fft_data: &[f32]) {
     // Draw a rectangle for each value in the FFT data
     // Skip the first value, as it is the DC component
     // Skip the second half, symmetric for real input
-    for (i, &value) in fft_data.iter().enumerate().skip(1).take(fft_data.len() / 2) {
+    for (i, &value) in fft_data.iter().enumerate().skip(1) {
         let rect_height = value * height_scale;
         let x = i as f32 * width;
         let y = screen_height() - rect_height;
@@ -185,14 +207,16 @@ fn handle_acceleration(speed_x: &mut f32, speed_y: &mut f32) {
 
 fn draw_ball_background(speed: f32, top_speed: f32) {
     clear_background(RED);
-    let text_lines = vec![
-        "WASD to apply acceleration".to_string(),
+    let text_lines = [
+        "WASD for directional acceleration".to_string(),
+        "F to apply forward acceleration".to_string(),
         "SPACEBAR to apply damping".to_string(),
         "P to pause, R to reset".to_string(),
         #[cfg(not(target_arch = "wasm32"))]
         "Q to quit".to_string(),
         #[cfg(target_arch = "wasm32")]
         "...you can't quit in the browser".to_string(),
+        "T to toggle FFT display".to_string(),
         "".to_string(),
         format!("Speed: {}", speed),
         format!("Top speed: {}", top_speed),
