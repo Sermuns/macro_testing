@@ -2,4 +2,4 @@
 mkdir -p deploy
 cp -r static/* deploy/
 cp target/wasm32-unknown-unknown/release/*.wasm deploy
-basic-http-server deploy
+basic-http-server deploy -a 0.0.0.0:3000
