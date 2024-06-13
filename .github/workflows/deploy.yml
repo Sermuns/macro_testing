@@ -45,15 +45,14 @@ jobs:
 
       - name: Copy files
         run: |
-          mkdir -p deploy
-          cp static/* deploy
-          cp target/wasm32-unknown-unknown/release/*.wasm deploy
+          mkdir -p public
+          cp static/* target/wasm32-unknown-unknown/release/*.wasm public
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./deploy
+          publish_dir: ./public
 
       - name: Print URL
         run: |
