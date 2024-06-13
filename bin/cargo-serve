@@ -2,6 +2,8 @@
 
 SERVE_DIR=public
 
+cargo build --target wasm32-unknown-unknown --release
+
 mkdir -p $SERVE_DIR
 cp -r static/* $SERVE_DIR
 cp target/wasm32-unknown-unknown/release/*.wasm $SERVE_DIR
