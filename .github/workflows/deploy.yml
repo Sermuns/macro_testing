@@ -9,6 +9,7 @@ on:
       - "Cargo.toml"
       - "Cargo.lock"
       - ".github/workflows/deploy.yml"
+      - "static/*"
   workflow_dispatch:
 
 permissions:
