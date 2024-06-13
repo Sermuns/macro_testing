@@ -17,6 +17,24 @@
             position: absolute;
             background: black;
             z-index: 0;
+            font-family: monospace;
+        }
+
+        footer {
+            opacity: 0;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 0.5rem;
+            font-family: monospace;
+        }
+
+        footer:hover {
+            opacity: 1;
         }
     </style>
 </head>
@@ -25,6 +43,14 @@
     <canvas id="glcanvas" tabindex='1'></canvas>
     <script src="gl.js"></script> <!-- https://not-fl3.github.io/miniquad-samples/gl.js -->
     <script>load("macro_testing.wasm");</script>
+    <script>
+        // add footer with last modified
+        var footer = document.createElement("footer");
+        var lastModified = new Date(document.lastModified);
+        var options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false };
+        footer.innerHTML = "modified: " + lastModified.toLocaleString(undefined, options);
+        document.body.appendChild(footer);
+    </script>
 </body>
 
 </html>
