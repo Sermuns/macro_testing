@@ -1,5 +1,8 @@
 #!/bin/bash
-mkdir -p deploy
-cp -r static/* deploy/
-cp target/wasm32-unknown-unknown/release/*.wasm deploy
-basic-http-server deploy -a 0.0.0.0:3000
+
+SERVE_DIR=public
+
+mkdir -p $SERVE_DIR
+cp -r static/* $SERVE_DIR
+cp target/wasm32-unknown-unknown/release/*.wasm $SERVE_DIR
+basic-http-server $SERVE_DIR -a 0.0.0.0:3000
