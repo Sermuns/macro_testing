@@ -115,6 +115,7 @@ fn draw_background(speed: f32, top_speed: f32) {
     draw_text("P to pause, R to reset", 20.0, 80.0, FONT_SIZE, BLACK);
     draw_text(&format!("Speed: {}", speed), 20.0, 120.0, FONT_SIZE, BLACK);
     draw_text(&format!("Top speed: {}", top_speed), 20.0, 140.0, FONT_SIZE, BLACK);
+    draw_text("Hehe... you can't quit in the browser", 20.0, 180.0, FONT_SIZE, BLACK);
 }
 
 fn draw_foreground(ball_x: f32, ball_y: f32, speed_x: f32, speed_y: f32) {
