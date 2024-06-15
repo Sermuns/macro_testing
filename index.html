@@ -4,7 +4,9 @@
 
 <head>
     <title>When the</title>
+    <link rel="manifest" href="/manifest.json">
     <meta charset="utf-8">
+
     <style>
         html,
         body,
@@ -40,7 +42,20 @@
 </head>
 
 <body>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/service-worker.js')
+                .then(registration => {
+                    console.log('Service Worker registered with scope:', registration.scope);
+                })
+                .catch(error => {
+                    console.log('Service Worker registration failed:', error);
+                });
+        }
+    </script>
+
     <canvas id="glcanvas" tabindex='1'></canvas>
+
     <script src="gl.js"></script> <!-- https://not-fl3.github.io/miniquad-samples/gl.js -->
     <script>load("macro_testing.wasm");</script>
     <script>
