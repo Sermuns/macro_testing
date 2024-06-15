@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>When the</title>
+    <title>Minimal PWA</title>
     <link rel="manifest" href="/manifest.json">
     <meta charset="utf-8">
 
@@ -43,13 +43,15 @@
 
 <body>
     <script>
+        // Check to make sure the browser supports service workers
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/service-worker.js')
-                .then(registration => {
-                    console.log('Service Worker registered with scope:', registration.scope);
+            navigator.serviceWorker
+                .register('/service-worker.js')
+                .then(() => {
+                    console.log('Service worker registered');
                 })
-                .catch(error => {
-                    console.log('Service Worker registration failed:', error);
+                .catch(err => {
+                    console.log('Service worker registration failed: ' + err);
                 });
         }
     </script>
